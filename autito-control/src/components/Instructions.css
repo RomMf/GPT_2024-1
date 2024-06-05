@@ -1,0 +1,47 @@
+.instructions-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .instructions-content {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    color: black;
+    max-width: 80%;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  }
+  
+  .instructions-content h2 {
+    margin-top: 0;
+  }
+  
+  .instructions-content ul {
+    list-style: none;
+    padding: 0;
+    text-align: left;
+  }
+  
+  .instructions-content ul li {
+    margin-bottom: 10px;
+  }
+  
+  .instructions-content button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background: #e67e22;
+    border: none;
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  
