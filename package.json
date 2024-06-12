@@ -11,9 +11,11 @@
   },
   "dependencies": {
     "mqtt": "^5.7.0",
+    "mqtt-react-hooks": "^3.0.0-alpha.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-joystick-component": "^6.2.1",
+    "react-mqtt-client": "^1.0.0",
     "react-use-websocket": "^4.8.1"
   },
   "devDependencies": {

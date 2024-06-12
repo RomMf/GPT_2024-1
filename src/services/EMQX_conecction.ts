@@ -8,7 +8,7 @@ class EMQXConnection extends EventEmitter {
     
     constructor() {
         super();
-        const brokerUrl = 'ws://34.121.97.129:8083/mqtt';
+        const brokerUrl = '/emqtx/conect';
         const options = {
             clean: true,
             clientId: "control" + Math.random().toString(16).substring(2, 8),
