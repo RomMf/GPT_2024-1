@@ -6,7 +6,7 @@
 });*/
 export default {
   server: {
-    host: '' // La dirección IP de tu computadora
+    host: '192.168.0.8' // La dirección IP de tu computadora
   }
 }
 
