@@ -6,7 +6,7 @@
 });*/
 export default {
   server: {
-    host: '' // La dirección IP de tu computadora
+    host: 'localhost' // La dirección IP de tu computadora
   }
 }
 
