@@ -108,5 +108,6 @@ void handleWebSocketMessage(uint8_t *payload, size_t length) {
     digitalWrite(gpLed, LOW); // Apagar LED
     delay(10); // Pequeño retardo para evitar interferencias
   }
+  delay(10);
 }
 

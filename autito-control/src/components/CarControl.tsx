@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './CarControl.css';
 import { Joystick } from 'react-joystick-component'; 
 
@@ -12,6 +12,7 @@ interface IJoystickUpdateEvent {
 function App() {
   const [ws, setWs] = useState<WebSocket | null>(null);
   const [connectionStatus, setConnectionStatus] = useState('Conectando...');
+  const ultimoComandoEnviadoRef = useRef('');
 
   useEffect(() => {
     const connectWebSocket = () => {
@@ -46,14 +47,12 @@ function App() {
     };
   }, []);
 
-  let ultimoComandoEnviado = '';
-
 
   const enviarComando = (comando: string) => {
-    if (ws?.readyState === WebSocket.OPEN && comando !== ultimoComandoEnviado) {
+    if (ws?.readyState === WebSocket.OPEN && comando !== ultimoComandoEnviadoRef.current) {
       const mensaje = JSON.stringify({ command: comando });
       ws.send(mensaje);
-      ultimoComandoEnviado = comando;
+      ultimoComandoEnviadoRef.current = comando
       console.log('Comando enviado:', mensaje);
       setConnectionStatus(`Último comando: ${comando}`);
     }
@@ -63,29 +62,38 @@ function App() {
     enviarComando(direction);
   };
 
-  const handleJoystickMove = (event: IJoystickUpdateEvent) => {
+  const handleLeftJoyMove = (event: IJoystickUpdateEvent) => {
     const { x, y } = event;
   
-    // Paso 1: Calcular el ángulo en grados
     if(x === null || y === null) return handleJoystickStop();
     let angle = Math.atan2(y, x) * (180 / Math.PI);
   
-    // Paso 2: Normalizar el ángulo para que esté en el rango de 0 a 360 grados
     if (angle < 0) {
       angle += 360;
     }
-  
-    // Paso 3: Determinar el cuadrante y enviar el comando correspondiente
-    if ((angle >= 0 && angle <= 45) || (angle > 315 && angle <= 360)) {
-      enviarComando('right');
-    } else if (angle > 45 && angle <= 135) {
-      enviarComando('forward');
-    } else if (angle > 135 && angle <= 225) {
+    if (angle > 90 && angle <= 270) {
       enviarComando('left');
-    } else if (angle > 225 && angle <= 315) {
-      enviarComando('backward');
+    } else {
+      enviarComando('right');
     }
-  };
+};
+
+const handleRightJoyMove = (event: IJoystickUpdateEvent) => {
+  const { x, y } = event;
+
+  if(x === null || y === null) return handleJoystickStop();
+  let angle = Math.atan2(y, x) * (180 / Math.PI);
+
+  if (angle < 0) {
+    angle += 360;
+  }
+  if (angle > 0 && angle <= 180) {
+    enviarComando('forward');
+  } else if (angle > 180 && angle <= 360) {
+    enviarComando('backward');
+  }
+};
+
   const handleJoystickStop = () => { 
     enviarComando('stop'); 
   }; 
@@ -95,13 +103,25 @@ function App() {
       <p className="connection-status">Estado de la conexión: {connectionStatus}</p>
       <div className="controls-container">
         <div className="arrow-buttons">
+        <div className="left-joystick">
         <Joystick 
             size={100} 
             baseColor="rgba(0,0,0,0.5)" 
             stickColor="rgba(255,255,255,0.8)" 
-            move={handleJoystickMove} 
+            move={handleLeftJoyMove} 
             stop={handleJoystickStop} 
           /> 
+          </div>
+          <div className="right-joystick">
+
+          <Joystick 
+            size={100} 
+            baseColor="rgba(0,0,0,0.5)" 
+            stickColor="rgba(255,255,255,0.8)" 
+            move={handleRightJoyMove} 
+            stop={handleJoystickStop} 
+            /> 
+            </div>
         </div>
         
       </div>
