@@ -59,8 +59,10 @@ void handleWebSocketMessage(uint8_t *payload, size_t length) {
     Serial.println(F("Error parsing JSON"));
     return;
   }
+
 //void WheelAct(int nLf, int nLb, int nRf, int nRb);
   const char *command = doc["command"];
+    Serial.println(command);
    if (strncmp(command, "speed_", 6) == 0) {
     int speedValue = atoi(command + 6); // Extrae el valor de velocidad
     analogWrite(gpLf, speedValue); // Ajusta la velocidad del motor izquierdo
@@ -94,13 +96,11 @@ void handleWebSocketMessage(uint8_t *payload, size_t length) {
     digitalWrite(gpRf, HIGH);
     digitalWrite(gpRb, LOW);
   } else if (strcmp(command, "stop") == 0) {
-      
-    //WheelAct(LOW, HIGH, HIGH, LOW); 
 
-    digitalWrite(gpLf, HIGH);
-    digitalWrite(gpRf, LOW);
+    digitalWrite(gpLf, LOW);
     digitalWrite(gpLb, LOW);
-    digitalWrite(gpRb, HIGH);
+    digitalWrite(gpRf, LOW);
+    digitalWrite(gpRb, LOW);
   } else if (strcmp(command, "led_on") == 0) {
     digitalWrite(gpLed, HIGH); // Encender LED
     delay(100); // Pequeño retardo para evitar interferencias
