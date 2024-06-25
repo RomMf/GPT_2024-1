@@ -7,7 +7,7 @@ function App() {
 
   useEffect(() => {
     const connectWebSocket = () => {
-      const webSocket = new WebSocket('ws://192.168.0.21:81');
+      const webSocket = new WebSocket('ws://192.168.18.108:81');
       setWs(webSocket);
 
       webSocket.onopen = () => {
@@ -61,12 +61,12 @@ function App() {
       <p className="connection-status">Estado de la conexión: {connectionStatus}</p>
       <div className="controls-container">
         <div className="arrow-buttons">
-          <button onClick={() => handleMove('backward')} className="arrow-button">▲</button>
+          <button onClick={() => handleMove('forward')} className="arrow-button">▲</button>
           <div className="horizontal-arrows">
             <button onClick={() => handleMove('left')} className="arrow-button">◀</button>
             <button onClick={() => handleMove('right')} className="arrow-button">▶</button>
           </div>
-          <button onClick={() => handleMove('forward')} className="arrow-button">▼</button>
+          <button onClick={() => handleMove('backward')} className="arrow-button">▼</button>
         </div>
       </div>
       <div className="led-buttons">
