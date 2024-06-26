@@ -57,7 +57,7 @@
 }
 
 .led-buttons button {
-  background-color: gray;
+  background-color: rgb(254, 154, 3);
   color: white;
   border: none;
   border-radius: 5px;
@@ -66,6 +66,11 @@
   cursor: pointer;
   margin: 5px;
 }
+.instructions-icon {
+  cursor: pointer;
+}
+
+
 
 
   
