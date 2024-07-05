@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import useWebSocket, { ReadyState } from 'react-use-websocket';
-import { Joystick } from 'react-joystick-component';
-import Instructions from './Instructions';
+import React, { useState, useEffect, useRef } from 'react';
 import './CarControl.css';
+import { Joystick } from 'react-joystick-component';
+import Instructions from './Instructions'; // Asegúrate de que la ruta sea correcta
+import { FaLightbulb } from 'react-icons/fa'; // Biblioteca react-icons para íconos
 
 interface IJoystickUpdateEvent {
   type: string;
@@ -10,108 +10,158 @@ interface IJoystickUpdateEvent {
   y: number | null;
 }
 
-const CarControl: React.FC = () => {
-  const { sendMessage, readyState } = useWebSocket('ws://TU_IP_DEL_ARDUINO:81', {
-    onOpen: () => console.log('Connected to WebSocket'),
-    onClose: () => console.log('Disconnected from WebSocket'),
-    onError: (event) => console.error(event),
-    shouldReconnect: () => true,
-  });
-
-  const [speed, setSpeed] = useState(0.5);
-  const [cameraOn, setCameraOn] = useState(false);
+function App() {
+  const [ws, setWs] = useState<WebSocket | null>(null);
+  const [connectionStatus, setConnectionStatus] = useState('Conectando...');
   const [showInstructions, setShowInstructions] = useState(false);
+  const [speed, setSpeed] = useState(50); // Estado para la velocidad
+  const ultimoComandoEnviadoRef = useRef('');
 
-  const handleCommand = (command: string) => {
-    sendMessage(command);
+  useEffect(() => {
+    const connectWebSocket = () => {
+      const webSocket = new WebSocket('ws://192.168.18.108:81');
+      setWs(webSocket);
+
+      webSocket.onopen = () => {
+        console.log('Conexión WebSocket abierta');
+        setConnectionStatus('Conectado');
+      };
+
+      webSocket.onerror = (error) => {
+        console.log('WebSocket error: ', error);
+        setConnectionStatus('Error de conexión');
+      };
+
+      webSocket.onclose = () => {
+        console.log('Conexión WebSocket cerrada. Reintentando...');
+        setConnectionStatus('Reconectando...');
+        setTimeout(connectWebSocket, 3000); // Reintentar conexión cada 3 segundos
+      };
+
+      webSocket.onmessage = (e) => {
+        console.log('Mensaje desde el servidor:', e.data);
+      };
+    };
+
+    connectWebSocket();
+
+    return () => {
+      ws?.close();
+    };
+  }, []);
+
+  const enviarComando = (comando: string) => {
+    if (ws?.readyState === WebSocket.OPEN && comando !== ultimoComandoEnviadoRef.current) {
+      const mensaje = JSON.stringify({ command: comando });
+      ws.send(mensaje);
+      ultimoComandoEnviadoRef.current = comando;
+      console.log('Comando enviado:', mensaje);
+      setConnectionStatus(`Último comando: ${comando}`);
+    }
   };
 
-  const handleJoystickMove = (event: IJoystickUpdateEvent) => {
+  const handleMove = (direction: string) => {
+    enviarComando(direction);
+  };
+
+  const handleLeftJoyMove = (event: IJoystickUpdateEvent) => {
     const { x, y } = event;
-    if (y && y > 0) {
-      handleCommand('forward');
-    } else if (y && y < 0) {
-      handleCommand('backward');
+
+    if (x === null || y === null) return handleJoystickStop();
+    let angle = Math.atan2(y, x) * (180 / Math.PI);
+
+    if (angle < 0) {
+      angle += 360;
     }
-    if (x && x > 0) {
-      handleCommand('right');
-    } else if (x && x < 0) {
-      handleCommand('left');
+    if (angle > 90 && angle <= 270) {
+      enviarComando('left');
+    } else {
+      enviarComando('right');
+    }
+  };
+
+  const handleRightJoyMove = (event: IJoystickUpdateEvent) => {
+    const { x, y } = event;
+
+    if (x === null || y === null) return handleJoystickStop();
+    let angle = Math.atan2(y, x) * (180 / Math.PI);
+
+    if (angle < 0) {
+      angle += 360;
+    }
+    if (angle > 0 && angle <= 180) {
+      enviarComando('forward');
+    } else if (angle > 180 && angle <= 360) {
+      enviarComando('backward');
     }
   };
 
   const handleJoystickStop = () => {
-    handleCommand('stop');
+    enviarComando('stop');
   };
 
-  const toggleCamera = () => {
-    setCameraOn(!cameraOn);
-    handleCommand(cameraOn ? 'camera_off' : 'camera_on');
+  const handleSpeedChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newSpeed = parseInt(event.target.value, 10);
+    setSpeed(newSpeed);
+    enviarComando(`speed:${newSpeed}`);
   };
-
-  const connectionStatus = {
-    [ReadyState.CONNECTING]: 'Connecting',
-    [ReadyState.OPEN]: 'Open',
-    [ReadyState.CLOSING]: 'Closing',
-    [ReadyState.CLOSED]: 'Closed',
-    [ReadyState.UNINSTANTIATED]: 'Uninstantiated',
-  }[readyState];
 
   return (
-    <div className="control-container">
-      {showInstructions && <Instructions onClose={() => setShowInstructions(false)} />}
-      <header className="header">
-        <button className="back-button">&lt;</button>
-        <h1>Autito Eddison 2.0</h1>
-        <button className="light-button" onClick={() => setShowInstructions(true)}>💡</button>
-      </header>
-      <div className="content">
-        {cameraOn && (
-          <div className="camera-feed">
-            <img src="http://TU_IP_DEL_ARDUINO:81/stream" alt="Camera Feed" />
+    <div className="app-container">
+      <div className="top-right-icon">
+        <div className="instructions-icon" onClick={() => setShowInstructions(true)}>
+          <FaLightbulb size={30} />
+        </div>
+      </div>
+      <p className="connection-status">Estado de la conexión: {connectionStatus}</p>
+      <div className="controls-container">
+        <div className="arrow-buttons">
+          <div className="left-joystick">
+            <Joystick
+              size={100}
+              baseColor="rgba(0,0,0,0.5)"
+              stickColor="rgba(255,255,255,0.8)"
+              move={handleLeftJoyMove}
+              stop={handleJoystickStop}
+            />
           </div>
-        )}
-        <div className="speed-control">
-          <label>Velocidad</label>
-          <input
-            type="range"
-            min="0"
-            max="1"
-            step="0.01"
-            value={speed}
-            onChange={(e) => setSpeed(parseFloat(e.target.value))}
-          />
-          <span>{speed.toFixed(2)}</span>
-        </div>
-        <div className="buttons">
-          <button className="camera-button" onClick={toggleCamera}>
-            {cameraOn ? 'Apagar Cámara' : 'Encender Cámara'}
-          </button>
-          <button onClick={() => handleCommand('led_on')}>LED Encendido</button>
-          <button onClick={() => handleCommand('led_off')}>LED Apagado</button>
+          <div className="right-joystick">
+            <Joystick
+              size={100}
+              baseColor="rgba(0,0,0,0.5)"
+              stickColor="rgba(255,255,255,0.8)"
+              move={handleRightJoyMove}
+              stop={handleJoystickStop}
+            />
+          </div>
         </div>
       </div>
-      <div className="control-panel">
-        <div className="joystick-container">
-          <Joystick
-            size={100}
-            baseColor="rgba(0,0,0,0.5)"
-            stickColor="rgba(255,255,255,0.8)"
-            move={handleJoystickMove}
-            stop={handleJoystickStop}
-          />
-        </div>
-        <div className="direction-buttons">
-          <button onClick={() => handleCommand('left')}>&larr;</button>
-          <button onClick={() => handleCommand('right')}>&rarr;</button>
-        </div>
+      <div className="led-buttons">
+        <button className="orange-button" onClick={() => enviarComando('led_on')}>Encender LED</button>
+        <button className="orange-button" onClick={() => enviarComando('led_off')}>Apagar LED</button>
       </div>
-      <p>WebSocket Status: {connectionStatus}</p>
+      <div className="speed-control">
+        <label htmlFor="speed-slider">Control de Velocidad:</label>
+        <input
+          id="speed-slider"
+          type="range"
+          min="0"
+          max="100"
+          value={speed}
+          onChange={handleSpeedChange}
+        />
+      </div>
+      {showInstructions && <Instructions onClose={() => setShowInstructions(false)} />}
     </div>
   );
-};
+}
 
-export default CarControl;
+export default App;
+
+
+
+
+
 
 
 

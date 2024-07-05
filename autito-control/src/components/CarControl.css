@@ -1,138 +1,76 @@
-.control-container {
+.app-container {
+  
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  background-color: #2c3e50;
-  color: white;
+  justify-content: center;
   height: 100vh;
   width: 100vw;
-  padding: 10px;
-  box-sizing: border-box;
-}
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-}
-
-.back-button, .light-button {
-  background: none;
-  border: none;
+  background-color: #2E3B4E;
   color: white;
-  font-size: 24px;
-  cursor: pointer;
 }
 
-.content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex-grow: 1;
+.connection-status {
+  margin-bottom: 20px;
+}
+
+.controls-container {
+  position: absolute;
+  bottom: 0;
   width: 100%;
+  justify-content: space-between;
 }
 
-.camera-feed {
-  margin: 20px;
-  width: 80%;
+.left-joystick, .right-joystick {
+  position: absolute;
+  bottom: 20px; 
 }
 
-.camera-feed img {
-  width: 100%;
-  height: auto;
-  border: 2px solid white;
+.left-joystick {
+  left: 20px;
+}
+
+.right-joystick {
+  right: 20px; 
 }
 
 .speed-control {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  margin: 10px;
+  margin-left: 20px;
 }
 
-.speed-control label {
-  margin-right: 10px;
+.velocidad-slider {
+  width: 10px;
+  height: 200px;
+  margin: 10px 0;
+  -webkit-appearance: slider-vertical;
+  writing-mode: bt-lr; /* IE */
+  transform: rotate(270deg); /* Standard syntax */
 }
 
-.buttons {
+.led-buttons {
   display: flex;
   justify-content: center;
-  gap: 10px;
-  flex-wrap: wrap;
+  margin-top: 20px;
 }
 
-.camera-button, .buttons button {
-  background: #e67e22;
+.led-buttons button {
+  background-color: rgb(254, 154, 3);
+  color: white;
   border: none;
+  border-radius: 5px;
   padding: 10px 20px;
-  color: white;
+  font-size: 16px;
   cursor: pointer;
-  border-radius: 5px;
+  margin: 5px;
 }
-
-.control-panel {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  padding: 10px;
-}
-
-.joystick-container {
-  position: absolute;
-  bottom: 20px;
-  left: 20px;
-}
-
-.direction-buttons {
-  position: absolute;
-  bottom: 20px;
-  right: 20px;
-  display: flex;
-  align-items: center;
-}
-
-.direction-buttons button {
-  background: #e67e22;
-  border: none;
-  padding: 20px;
-  color: white;
-  font-size: 24px;
+.instructions-icon {
   cursor: pointer;
-  border-radius: 5px;
-  margin: 0 5px;
 }
 
-@media (max-width: 600px) {
-  .camera-feed {
-    width: 100%;
-  }
 
-  .buttons, .direction-buttons {
-    flex-direction: column;
-  }
 
-  .buttons button, .direction-buttons button {
-    width: 100%;
-    margin: 5px 0;
-  }
-
-  .control-panel {
-    flex-direction: column;
-  }
-
-  .joystick-container {
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-  }
-
-  .direction-buttons {
-    bottom: 100px;
-    right: 50%;
-    transform: translateX(50%);
-    flex-direction: row;
-  }
-}
 
   
